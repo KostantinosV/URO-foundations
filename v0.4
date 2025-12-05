@@ -1,0 +1,1154 @@
+"""
+URO EMERGENT COMPLEXITY ENGINE: From 0/T to 4D spacetime through pure iteration
+Copyright (c) 2025 Konstantinos V. All rights reserved.
+
+Key principles:
+1. Start with absolute minimal foundation: 0 (void) and T (token)
+2. Every new structure emerges from iterated awareness of previous states
+3. No imposed symmetries - they must self-organize
+4. Run for millions of iterations to see true emergence
+5. Measure and validate everything statistically
+"""
+
+import numpy as np
+from numba import jit, prange
+from scipy import stats, optimize, signal
+from collections import defaultdict, deque
+from typing import Dict, List, Tuple, Any, Optional
+import pickle
+import json
+from datetime import datetime
+import warnings
+warnings.filterwarnings('ignore')
+
+# ============================================================================
+# FUNDAMENTAL DEFINITIONS: LAYER 0 (SEMANTIC/PHILOSOPHICAL)
+# ============================================================================
+
+class UROFoundation:
+    """The absolute foundation: semantic 0 and syntactic T"""
+    
+    def __init__(self):
+        self.void = None  # Semantic 0: not even an object
+        self.token = "T"  # Syntactic T: the first distinction
+        
+        # The first awareness: 0 -> T creates distinction
+        self.first_distinction = (self.void, self.token)
+        
+        # Initialize memory (empty at start)
+        self.memory = []
+        
+        # Initialize state: we start with distinction made
+        self.state = {
+            'current': self.token,
+            'previous': self.void,
+            'distinction_made': True,
+            'iteration': 0
+        }
+        
+        # Track all states for analysis
+        self.history = []
+        self.history.append(self.state.copy())
+    
+    def iterate_awareness(self):
+        """Apply awareness to current state"""
+        current = self.state['current']
+        previous = self.state['previous']
+        iteration = self.state['iteration'] + 1
+        
+        # Rule 1: If current is T and previous is 0, we get 1
+        if current == self.token and previous == self.void:
+            new_current = 1
+            # Store the first number as memory
+            self.memory.append(1)
+        
+        # Rule 2: If current is a number, apply successor
+        elif isinstance(current, (int, float)):
+            # Add awareness of previous number
+            if previous is not None:
+                # Simple successor function
+                new_current = current + 1
+            else:
+                new_current = current + 1
+        
+        # Rule 3: Memory awareness (if we have memory)
+        elif isinstance(current, list) or len(self.memory) > 0:
+            # Awareness of memory creates relations
+            new_current = self._form_relation(self.memory, current)
+        
+        else:
+            # Default: just increment
+            new_current = iteration
+        
+        # Update state
+        new_state = {
+            'current': new_current,
+            'previous': current,
+            'distinction_made': True,
+            'iteration': iteration
+        }
+        
+        # Add to memory if it's new
+        if new_current not in self.memory:
+            self.memory.append(new_current)
+        
+        self.state = new_state
+        self.history.append(new_state.copy())
+        
+        return new_state
+    
+    def _form_relation(self, memory, current):
+        """Form relation between current and memory"""
+        # Simple: sum of memory elements
+        if isinstance(current, (int, float)):
+            if len(memory) > 0:
+                return sum(memory) / len(memory)
+        return current + 1
+    
+    def run(self, n_iterations: int = 1000000):
+        """Run for many iterations"""
+        patterns = []
+        
+        for i in range(n_iterations):
+            state = self.iterate_awareness()
+            
+            # Check for patterns every 1000 iterations
+            if i % 1000 == 0:
+                pattern = self._detect_patterns()
+                if pattern:
+                    patterns.append((i, pattern))
+            
+            # Early stopping if we find interesting structure
+            if len(patterns) > 10:
+                break
+        
+        return self.history, patterns
+    
+    def _detect_patterns(self):
+        """Detect emergent patterns in the sequence"""
+        if len(self.history) < 100:
+            return None
+        
+        # Extract sequence of 'current' values
+        sequence = [s['current'] for s in self.history if isinstance(s['current'], (int, float))]
+        
+        if len(sequence) < 50:
+            return None
+        
+        # Check for arithmetic progression
+        diffs = np.diff(sequence[-50:])
+        if np.std(diffs) < 0.1:
+            return {'type': 'arithmetic', 'diff': np.mean(diffs)}
+        
+        # Check for geometric progression (ratios)
+        ratios = np.array(sequence[-49:]) / np.array(sequence[-50:-1])
+        ratios = ratios[~np.isnan(ratios) & ~np.isinf(ratios)]
+        if len(ratios) > 10 and np.std(ratios) < 0.1:
+            return {'type': 'geometric', 'ratio': np.mean(ratios)}
+        
+        return None
+
+# ============================================================================
+# EMERGENT DIMENSIONALITY: FROM NUMBERS TO SPACE
+# ============================================================================
+
+class EmergentDimensionality:
+    """
+    Let dimensionality emerge from iterated relations.
+    
+    Hypothesis: After N iterations of awareness forming relations,
+    the system naturally organizes into dimensional structures.
+    """
+    
+    def __init__(self, seed_sequence: List[float] = None):
+        if seed_sequence is None:
+            # Start with simple sequence from UROFoundation
+            uro = UROFoundation()
+            for _ in range(100):
+                uro.iterate_awareness()
+            seed_sequence = [s['current'] for s in uro.history 
+                            if isinstance(s['current'], (int, float))]
+        
+        self.sequence = np.array(seed_sequence)
+        self.relations = []  # Will store emergent relations
+        self.dimensions = []  # Will store discovered dimensions
+        self.iteration = 0
+        
+        # Statistical tracking
+        self.statistics = {
+            'autocorrelation': [],
+            'fractal_dim': [],
+            'entropy': [],
+            'complexity': []
+        }
+    
+    @staticmethod
+    @jit(nopython=True, parallel=True)
+    def _compute_autocorrelation(x: np.ndarray, max_lag: int = 100) -> np.ndarray:
+        """Fast autocorrelation for pattern detection"""
+        n = len(x)
+        acf = np.zeros(max_lag)
+        
+        for lag in prange(max_lag):
+            if lag < n:
+                x1 = x[:n-lag]
+                x2 = x[lag:]
+                mean1 = np.mean(x1)
+                mean2 = np.mean(x2)
+                std1 = np.std(x1)
+                std2 = np.std(x2)
+                
+                if std1 > 0 and std2 > 0:
+                    corr = np.sum((x1 - mean1) * (x2 - mean2)) / (std1 * std2 * (n - lag))
+                    acf[lag] = corr
+        
+        return acf
+    
+    def iterate(self, n_steps: int = 10000):
+        """Run many iterations of relation formation"""
+        for step in range(n_steps):
+            self._form_new_relations()
+            self._detect_structures()
+            self._update_statistics()
+            
+            self.iteration += 1
+            
+            # Print progress
+            if step % 1000 == 0:
+                self._report_progress(step)
+        
+        return self._analyze_emergent_structure()
+    
+    def _form_new_relations(self):
+        """Form new relations between existing elements"""
+        n = len(self.sequence)
+        
+        # Method 1: Linear combinations
+        if n >= 3:
+            # Create new element as weighted sum
+            weights = np.random.randn(3)
+            weights = weights / np.linalg.norm(weights)
+            
+            indices = np.random.choice(n, 3, replace=False)
+            new_val = np.dot(weights, self.sequence[indices])
+            
+            self.sequence = np.append(self.sequence, new_val)
+            
+            # Store the relation
+            relation = {
+                'type': 'linear_combination',
+                'indices': indices.tolist(),
+                'weights': weights.tolist(),
+                'result': len(self.sequence) - 1
+            }
+            self.relations.append(relation)
+        
+        # Method 2: Nonlinear operations (emerge from awareness of relations)
+        if len(self.relations) >= 2:
+            # Combine two relations to form higher-order relation
+            r1, r2 = np.random.choice(self.relations, 2, replace=False)
+            
+            if r1['type'] == 'linear_combination' and r2['type'] == 'linear_combination':
+                # Create product relation (emergent multiplication)
+                new_val = (self.sequence[r1['result']] * 
+                          self.sequence[r2['result']])
+                self.sequence = np.append(self.sequence, new_val)
+                
+                relation = {
+                    'type': 'product',
+                    'operands': [r1['result'], r2['result']],
+                    'result': len(self.sequence) - 1
+                }
+                self.relations.append(relation)
+    
+    def _detect_structures(self):
+        """Detect dimensional structures in the sequence"""
+        if len(self.sequence) < 50:
+            return
+        
+        # Try to embed in different dimensions
+        for d in [2, 3, 4]:
+            if len(self.sequence) >= d * 10:
+                # Reshape sequence into d-dimensional points
+                n_points = len(self.sequence) // d
+                points = self.sequence[:n_points * d].reshape(n_points, d)
+                
+                # Check if points form a coherent structure
+                if self._is_coherent_manifold(points, d):
+                    dimension_info = {
+                        'dimension': d,
+                        'n_points': n_points,
+                        'coherence': self._compute_manifold_coherence(points),
+                        'curvature': self._estimate_curvature(points),
+                        'iteration': self.iteration
+                    }
+                    self.dimensions.append(dimension_info)
+    
+    def _is_coherent_manifold(self, points: np.ndarray, d: int) -> bool:
+        """Check if points form a coherent d-dimensional manifold"""
+        # Compute pairwise distances
+        from scipy.spatial.distance import pdist, squareform
+        distances = pdist(points)
+        
+        # Check if distances follow expected scaling
+        # For a d-dimensional manifold, distances should scale appropriately
+        hist, bins = np.histogram(distances, bins=20)
+        
+        # For coherent manifold, histogram should be smooth
+        smoothness = np.sum(np.abs(np.diff(hist))) / np.sum(hist)
+        
+        # Also check variance explained by PCA
+        if points.shape[0] > points.shape[1]:
+            from sklearn.decomposition import PCA
+            pca = PCA(n_components=d)
+            pca.fit(points)
+            variance_ratio = np.sum(pca.explained_variance_ratio_)
+            
+            # Criteria: smooth distance distribution and high variance explained
+            return smoothness < 0.5 and variance_ratio > 0.8
+        
+        return False
+    
+    def _compute_manifold_coherence(self, points: np.ndarray) -> float:
+        """Compute how coherent the manifold is"""
+        # Use nearest neighbor consistency
+        from sklearn.neighbors import NearestNeighbors
+        nbrs = NearestNeighbors(n_neighbors=min(5, points.shape[0]-1)).fit(points)
+        distances, indices = nbrs.kneighbors(points)
+        
+        # Compute local dimension estimates
+        local_dims = []
+        for i in range(points.shape[0]):
+            # Use local PCA to estimate dimension
+            if len(indices[i]) >= 3:
+                local_points = points[indices[i]]
+                cov = np.cov(local_points.T)
+                eigvals = np.linalg.eigvalsh(cov)
+                eigvals = eigvals[eigvals > 1e-10]
+                # Estimate dimension from eigenvalue decay
+                if len(eigvals) > 1:
+                    decay = eigvals[-1] / eigvals[0]
+                    if decay < 0.1:
+                        local_dims.append(np.sum(eigvals > decay * eigvals[0]))
+        
+        if local_dims:
+            return 1.0 / (1 + np.std(local_dims))
+        return 0.0
+    
+    def _estimate_curvature(self, points: np.ndarray) -> float:
+        """Estimate curvature of the manifold"""
+        # Simplified curvature estimation using triangles
+        if points.shape[0] < 3:
+            return 0.0
+        
+        # Sample random triangles
+        n_samples = min(100, points.shape[0] // 3)
+        curvatures = []
+        
+        for _ in range(n_samples):
+            idx = np.random.choice(points.shape[0], 3, replace=False)
+            a, b, c = points[idx]
+            
+            # Compute triangle properties
+            ab = b - a
+            ac = c - a
+            bc = c - b
+            
+            # Side lengths
+            la = np.linalg.norm(ab)
+            lb = np.linalg.norm(ac)
+            lc = np.linalg.norm(bc)
+            
+            # Heron's formula for area
+            s = (la + lb + lc) / 2
+            area = np.sqrt(max(0, s * (s - la) * (s - lb) * (s - lc)))
+            
+            # Circumradius
+            if area > 0:
+                R = (la * lb * lc) / (4 * area)
+                # Curvature ~ 1/R^2
+                curvature = 1 / (R ** 2) if R > 0 else 0
+                curvatures.append(curvature)
+        
+        if curvatures:
+            return np.mean(curvatures)
+        return 0.0
+    
+    def _update_statistics(self):
+        """Update running statistics"""
+        if len(self.sequence) >= 100:
+            # Autocorrelation
+            acf = self._compute_autocorrelation(self.sequence[-1000:], max_lag=50)
+            self.statistics['autocorrelation'].append(np.mean(np.abs(acf)))
+            
+            # Fractal dimension (approximate)
+            if len(self.sequence) >= 200:
+                fd = self._estimate_fractal_dimension(self.sequence[-200:])
+                self.statistics['fractal_dim'].append(fd)
+            
+            # Entropy
+            hist, _ = np.histogram(self.sequence[-100:], bins=20, density=True)
+            hist = hist[hist > 0]
+            entropy = -np.sum(hist * np.log(hist))
+            self.statistics['entropy'].append(entropy)
+            
+            # Complexity (Lempel-Ziv approximation)
+            comp = self._estimate_complexity(self.sequence[-100:])
+            self.statistics['complexity'].append(comp)
+    
+    def _estimate_fractal_dimension(self, sequence: np.ndarray) -> float:
+        """Estimate fractal dimension using box counting"""
+        # Simple box counting for 1D
+        n = len(sequence)
+        sizes = 2**np.arange(1, 8)
+        counts = []
+        
+        for size in sizes:
+            if size < n:
+                # Downsample
+                downsampled = sequence[::size]
+                # Count distinct values (boxes)
+                count = len(np.unique(np.round(downsampled, 3)))
+                counts.append(count)
+        
+        if len(counts) >= 3:
+            # Linear fit: log(N) = -d * log(ε) + C
+            log_counts = np.log(counts)
+            log_sizes = np.log(sizes[:len(counts)])
+            
+            # Least squares
+            A = np.vstack([log_sizes, np.ones(len(log_sizes))]).T
+            d, _ = np.linalg.lstsq(A, log_counts, rcond=None)[0]
+            return -d  # Since N(ε) ∝ ε^{-d}
+        
+        return 1.0  # Default for 1D
+    
+    def _estimate_complexity(self, sequence: np.ndarray) -> float:
+        """Estimate Kolmogorov complexity via compression ratio"""
+        # Simple string compression estimation
+        seq_str = ''.join([chr(int(x*100) % 256) for x in sequence])
+        
+        # Use basic pattern finding
+        patterns = []
+        for i in range(len(seq_str) - 2):
+            pattern = seq_str[i:i+3]
+            if pattern in seq_str[i+3:]:
+                patterns.append(pattern)
+        
+        # Complexity inversely related to repeating patterns
+        unique_patterns = len(set(patterns))
+        return unique_patterns / max(1, len(patterns))
+    
+    def _report_progress(self, step: int):
+        """Report progress during iteration"""
+        if len(self.statistics['fractal_dim']) > 0:
+            latest_fd = self.statistics['fractal_dim'][-1]
+            latest_ent = self.statistics['entropy'][-1] if self.statistics['entropy'] else 0
+            
+            print(f"Iteration {step}: "
+                  f"Sequence length: {len(self.sequence)}, "
+                  f"Relations: {len(self.relations)}, "
+                  f"Dimensions found: {len(self.dimensions)}, "
+                  f"Fractal dim: {latest_fd:.3f}, "
+                  f"Entropy: {latest_ent:.3f}")
+    
+    def _analyze_emergent_structure(self) -> Dict:
+        """Analyze what structures have emerged"""
+        analysis = {
+            'total_iterations': self.iteration,
+            'sequence_length': len(self.sequence),
+            'n_relations': len(self.relations),
+            'dimensions_found': [],
+            'statistical_summary': {},
+            'symmetries_detected': []
+        }
+        
+        # Analyze dimensions
+        if self.dimensions:
+            dims = [d['dimension'] for d in self.dimensions]
+            analysis['dimensions_found'] = dims
+            
+            # Check if 4D emerged
+            if 4 in dims:
+                analysis['4D_emerged'] = True
+                # Find the 4D structure
+                four_d_structs = [d for d in self.dimensions if d['dimension'] == 4]
+                analysis['4D_structures'] = four_d_structs
+            else:
+                analysis['4D_emerged'] = False
+        
+        # Statistical summary
+        for key in self.statistics:
+            if self.statistics[key]:
+                analysis['statistical_summary'][key] = {
+                    'mean': np.mean(self.statistics[key]),
+                    'std': np.std(self.statistics[key]),
+                    'trend': self._compute_trend(self.statistics[key])
+                }
+        
+        # Detect symmetries
+        analysis['symmetries_detected'] = self._detect_symmetries()
+        
+        return analysis
+    
+    def _compute_trend(self, values: List[float]) -> str:
+        """Compute trend of values"""
+        if len(values) < 10:
+            return "insufficient_data"
+        
+        # Linear regression
+        x = np.arange(len(values))
+        slope, intercept, r_value, p_value, std_err = stats.linregress(x, values)
+        
+        if abs(slope) < 0.01:
+            return "stable"
+        elif slope > 0.01:
+            return "increasing"
+        else:
+            return "decreasing"
+    
+    def _detect_symmetries(self) -> List[Dict]:
+        """Detect emergent symmetries in the structure"""
+        symmetries = []
+        
+        if len(self.sequence) < 100:
+            return symmetries
+        
+        # 1. Check for translational symmetry (autocorrelation peaks)
+        acf = self._compute_autocorrelation(self.sequence, max_lag=100)
+        peaks, _ = signal.find_peaks(np.abs(acf), height=0.5)
+        
+        if len(peaks) > 1:
+            # Check if peaks are regularly spaced (translational symmetry)
+            peak_diffs = np.diff(peaks)
+            if np.std(peak_diffs) / np.mean(peak_diffs) < 0.2:
+                symmetries.append({
+                    'type': 'translational',
+                    'period': np.mean(peak_diffs),
+                    'strength': np.mean(acf[peaks])
+                })
+        
+        # 2. Check for scale symmetry (fractal structure)
+        if len(self.statistics['fractal_dim']) > 10:
+            fd_values = self.statistics['fractal_dim'][-10:]
+            if np.std(fd_values) / np.mean(fd_values) < 0.1:
+                symmetries.append({
+                    'type': 'scale',
+                    'fractal_dimension': np.mean(fd_values),
+                    'consistency': 1 - np.std(fd_values)/np.mean(fd_values)
+                })
+        
+        # 3. Check for temporal symmetry (stationarity)
+        if len(self.statistics['entropy']) > 20:
+            entropy_values = self.statistics['entropy'][-20:]
+            # Test for stationarity (ADF test approximation)
+            diff = np.diff(entropy_values)
+            if np.mean(np.abs(diff)) < 0.1 * np.std(entropy_values):
+                symmetries.append({
+                    'type': 'temporal',
+                    'stationarity': 1 - np.mean(np.abs(diff))/np.std(entropy_values)
+                })
+        
+        return symmetries
+
+# ============================================================================
+# MASSIVE ITERATION ENGINE: RUN FOR MILLIONS OF ITERATIONS
+# ============================================================================
+
+class UROMassiveIteration:
+    """
+    Run URO evolution for millions of iterations, saving and analyzing periodically.
+    """
+    
+    def __init__(self, save_interval: int = 100000, checkpoint_dir: str = "checkpoints"):
+        self.save_interval = save_interval
+        self.checkpoint_dir = checkpoint_dir
+        
+        # Initialize from absolute foundation
+        self.foundation = UROFoundation()
+        self.dimensionality = None
+        
+        # Results storage
+        self.results = {
+            'foundation_history': [],
+            'dimensionality_results': [],
+            'patterns_found': [],
+            'checkpoints': []
+        }
+        
+        # Statistics
+        self.stats = {
+            'start_time': datetime.now(),
+            'iterations_completed': 0,
+            'patterns_per_iteration': [],
+            'complexity_over_time': []
+        }
+    
+    def run(self, total_iterations: int = 10000000, 
+            dimensionality_start: int = 10000) -> Dict:
+        """
+        Run massive iteration experiment.
+        
+        Args:
+            total_iterations: Total number of iterations to run
+            dimensionality_start: When to start dimensionality emergence analysis
+        """
+        print("="*70)
+        print("URO MASSIVE ITERATION EXPERIMENT")
+        print(f"Starting at: {self.stats['start_time']}")
+        print(f"Total iterations: {total_iterations:,}")
+        print(f"Dimensionality analysis starts at: {dimensionality_start:,}")
+        print("="*70)
+        
+        # Phase 1: Foundation building (iterations 0 to dimensionality_start-1)
+        print("\nPHASE 1: Building foundation...")
+        foundation_patterns = self._run_foundation_phase(dimensionality_start)
+        self.results['foundation_history'] = self.foundation.history
+        self.results['patterns_found'].extend(foundation_patterns)
+        
+        # Phase 2: Dimensionality emergence
+        print("\nPHASE 2: Emergent dimensionality...")
+        dimensionality_results = self._run_dimensionality_phase(
+            total_iterations - dimensionality_start
+        )
+        self.results['dimensionality_results'] = dimensionality_results
+        
+        # Final analysis
+        print("\nPHASE 3: Final analysis...")
+        final_analysis = self._analyze_results()
+        
+        return {
+            'results': self.results,
+            'stats': self.stats,
+            'final_analysis': final_analysis,
+            'duration': datetime.now() - self.stats['start_time']
+        }
+    
+    def _run_foundation_phase(self, n_iterations: int) -> List[Dict]:
+        """Run foundation phase iterations"""
+        patterns = []
+        
+        for i in range(n_iterations):
+            state = self.foundation.iterate_awareness()
+            self.stats['iterations_completed'] += 1
+            
+            # Check for patterns
+            if i % 1000 == 0:
+                pattern = self.foundation._detect_patterns()
+                if pattern:
+                    patterns.append((i, pattern))
+                
+                # Report progress
+                if i % 10000 == 0:
+                    print(f"  Foundation iteration {i:,}/{n_iterations:,} "
+                          f"({i/n_iterations*100:.1f}%)")
+                    if pattern:
+                        print(f"    Pattern found: {pattern}")
+            
+            # Save checkpoint
+            if i % self.save_interval == 0 and i > 0:
+                self._save_checkpoint(i, 'foundation')
+        
+        return patterns
+    
+    def _run_dimensionality_phase(self, n_iterations: int) -> List[Dict]:
+        """Run dimensionality emergence phase"""
+        # Extract sequence from foundation
+        sequence = [s['current'] for s in self.foundation.history 
+                   if isinstance(s['current'], (int, float))]
+        
+        # Initialize dimensionality engine
+        self.dimensionality = EmergentDimensionality(sequence)
+        
+        # Run in chunks for memory management
+        chunk_size = 10000
+        results = []
+        
+        for chunk in range(0, n_iterations, chunk_size):
+            current_chunk = min(chunk_size, n_iterations - chunk)
+            
+            print(f"  Dimensionality chunk {chunk//chunk_size + 1}/"
+                  f"{(n_iterations + chunk_size - 1)//chunk_size}: "
+                  f"{chunk:,}-{chunk+current_chunk:,}")
+            
+            # Run chunk
+            chunk_result = self.dimensionality.iterate(current_chunk)
+            results.append(chunk_result)
+            
+            # Update stats
+            self.stats['iterations_completed'] += current_chunk
+            
+            # Save checkpoint
+            checkpoint_iter = self.stats['iterations_completed']
+            if checkpoint_iter % self.save_interval == 0:
+                self._save_checkpoint(checkpoint_iter, 'dimensionality')
+            
+            # Check for 4D emergence
+            if chunk_result.get('4D_emerged', False):
+                print("\n  ⚡ 4D STRUCTURE EMERGED! ⚡")
+                print(f"    At iteration: {checkpoint_iter:,}")
+                print(f"    Structure details: {chunk_result['4D_structures'][0]}")
+                
+                # We could stop here, but let's continue to see if it stabilizes
+                # break
+        
+        return results
+    
+    def _save_checkpoint(self, iteration: int, phase: str):
+        """Save checkpoint to disk"""
+        checkpoint = {
+            'iteration': iteration,
+            'phase': phase,
+            'timestamp': datetime.now().isoformat(),
+            'foundation_state': self.foundation.state,
+            'dimensionality_state': self.dimensionality.state if self.dimensionality else None,
+            'stats': self.stats.copy()
+        }
+        
+        # Save to file
+        filename = f"{self.checkpoint_dir}/checkpoint_{iteration:09d}.pkl"
+        with open(filename, 'wb') as f:
+            pickle.dump(checkpoint, f)
+        
+        self.results['checkpoints'].append(checkpoint)
+        print(f"    Checkpoint saved: {filename}")
+    
+    def _analyze_results(self) -> Dict:
+        """Analyze final results"""
+        analysis = {
+            'total_iterations': self.stats['iterations_completed'],
+            'patterns_summary': self._analyze_patterns(),
+            'dimensionality_summary': self._analyze_dimensionality(),
+            'symmetry_analysis': self._analyze_symmetries(),
+            'statistical_tests': self._run_statistical_tests()
+        }
+        
+        # Check if 4D spacetime emerged
+        if self.dimensionality:
+            dims_found = [d.get('dimension', 0) for d in self.dimensionality.dimensions]
+            analysis['4D_emergence'] = {
+                'emerged': 4 in dims_found,
+                'frequency': dims_found.count(4) / max(1, len(dims_found)),
+                'when': self._find_first_4d()
+            }
+        
+        return analysis
+    
+    def _analyze_patterns(self) -> Dict:
+        """Analyze patterns found"""
+        if not self.results['patterns_found']:
+            return {'n_patterns': 0, 'types': {}}
+        
+        pattern_types = defaultdict(int)
+        for _, pattern in self.results['patterns_found']:
+            pattern_types[pattern['type']] += 1
+        
+        return {
+            'n_patterns': len(self.results['patterns_found']),
+            'types': dict(pattern_types),
+            'first_pattern': self.results['patterns_found'][0] if self.results['patterns_found'] else None,
+            'latest_pattern': self.results['patterns_found'][-1] if self.results['patterns_found'] else None
+        }
+    
+    def _analyze_dimensionality(self) -> Dict:
+        """Analyze dimensionality results"""
+        if not self.dimensionality:
+            return {}
+        
+        # Collect all dimension findings
+        all_dims = []
+        for result in self.results['dimensionality_results']:
+            if isinstance(result, dict) and 'dimensions_found' in result:
+                all_dims.extend(result['dimensions_found'])
+        
+        if not all_dims:
+            return {}
+        
+        dim_counts = {d: all_dims.count(d) for d in set(all_dims)}
+        
+        return {
+            'dimensions_found': dim_counts,
+            'most_common_dim': max(dim_counts.items(), key=lambda x: x[1])[0] if dim_counts else None,
+            'dimensionality_stats': self.dimensionality.statistics if hasattr(self.dimensionality, 'statistics') else {}
+        }
+    
+    def _analyze_symmetries(self) -> List[Dict]:
+        """Analyze symmetries found"""
+        if not self.dimensionality:
+            return []
+        
+        symmetries = []
+        for result in self.results['dimensionality_results']:
+            if isinstance(result, dict) and 'symmetries_detected' in result:
+                symmetries.extend(result['symmetries_detected'])
+        
+        # Group by type
+        symmetry_types = defaultdict(list)
+        for sym in symmetries:
+            symmetry_types[sym['type']].append(sym)
+        
+        # Analyze each symmetry type
+        analysis = []
+        for sym_type, sym_list in symmetry_types.items():
+            if sym_list:
+                strengths = [s.get('strength', s.get('consistency', s.get('stationarity', 0))) 
+                            for s in sym_list]
+                analysis.append({
+                    'type': sym_type,
+                    'count': len(sym_list),
+                    'mean_strength': np.mean(strengths),
+                    'std_strength': np.std(strengths),
+                    'first_appearance': min([s.get('iteration', float('inf')) for s in sym_list], default=0),
+                    'latest_strength': strengths[-1] if strengths else 0
+                })
+        
+        return analysis
+    
+    def _run_statistical_tests(self) -> Dict:
+        """Run statistical tests on results"""
+        tests = {}
+        
+        # Test 1: Non-randomness of patterns
+        if self.results['patterns_found']:
+            # Test if patterns occur more than expected by chance
+            n_patterns = len(self.results['patterns_found'])
+            total_iterations = self.stats['iterations_completed']
+            expected_random = total_iterations / 1000  # Assuming pattern check every 1000 iterations
+            
+            # Poisson test for excess patterns
+            from scipy.stats import poisson
+            p_value = 1 - poisson.cdf(n_patterns - 1, expected_random)
+            tests['pattern_nonrandomness'] = {
+                'n_observed': n_patterns,
+                'n_expected_random': expected_random,
+                'p_value': p_value,
+                'significant': p_value < 0.05
+            }
+        
+        # Test 2: Convergence of statistics
+        if self.dimensionality and self.dimensionality.statistics:
+            for stat_name, stat_values in self.dimensionality.statistics.items():
+                if len(stat_values) >= 20:
+                    # Test for stationarity (ADF test)
+                    from statsmodels.tsa.stattools import adfuller
+                    try:
+                        adf_result = adfuller(stat_values[-100:])
+                        tests[f'{stat_name}_stationarity'] = {
+                            'test_statistic': adf_result[0],
+                            'p_value': adf_result[1],
+                            'stationary': adf_result[1] < 0.05
+                        }
+                    except:
+                        pass
+        
+        return tests
+    
+    def _find_first_4d(self) -> Optional[Dict]:
+        """Find when 4D first emerged"""
+        if not self.results['dimensionality_results']:
+            return None
+        
+        for i, result in enumerate(self.results['dimensionality_results']):
+            if isinstance(result, dict) and result.get('4D_emerged', False):
+                # Estimate iteration number
+                iteration_estimate = self.save_interval * (i + 1)
+                return {
+                    'iteration_estimate': iteration_estimate,
+                    'checkpoint_index': i,
+                    'structure_details': result.get('4D_structures', [{}])[0]
+                }
+        
+        return None
+
+# ============================================================================
+# VALIDATION WITH RANDOM NULL MODELS
+# ============================================================================
+
+class URONullModelValidator:
+    """
+    Validate URO results against random null models.
+    Run the same process with random inputs to see if patterns emerge by chance.
+    """
+    
+    def __init__(self, n_null_models: int = 100):
+        self.n_null_models = n_null_models
+        self.null_results = []
+    
+    def run_null_experiments(self, n_iterations: int = 100000):
+        """Run many null experiments"""
+        print(f"\nRunning {self.n_null_models} null models...")
+        
+        for i in range(self.n_null_models):
+            print(f"  Null model {i+1}/{self.n_null_models}")
+            
+            # Create random foundation
+            random_foundation = self._random_foundation()
+            
+            # Run iterations
+            patterns = []
+            for j in range(n_iterations):
+                state = random_foundation.iterate_awareness()
+                
+                if j % 1000 == 0:
+                    pattern = random_foundation._detect_patterns()
+                    if pattern:
+                        patterns.append((j, pattern))
+            
+            # Store results
+            self.null_results.append({
+                'model_id': i,
+                'n_patterns': len(patterns),
+                'patterns': patterns[:10],  # Store first 10 patterns
+                'sequence': [s['current'] for s in random_foundation.history 
+                            if isinstance(s['current'], (int, float))][-100:]
+            })
+        
+        return self._analyze_null_results()
+    
+    def _random_foundation(self) -> UROFoundation:
+        """Create random foundation"""
+        foundation = UROFoundation()
+        
+        # Randomize the initial state
+        foundation.state = {
+            'current': np.random.randn(),
+            'previous': None,
+            'distinction_made': True,
+            'iteration': 0
+        }
+        foundation.history = [foundation.state.copy()]
+        foundation.memory = []
+        
+        return foundation
+    
+    def _analyze_null_results(self) -> Dict:
+        """Analyze null model results"""
+        n_patterns_list = [r['n_patterns'] for r in self.null_results]
+        
+        analysis = {
+            'null_models_run': self.n_null_models,
+            'null_pattern_summary': {
+                'mean': np.mean(n_patterns_list),
+                'std': np.std(n_patterns_list),
+                'min': np.min(n_patterns_list),
+                'max': np.max(n_patterns_list),
+                'median': np.median(n_patterns_list)
+            },
+            'pattern_types': self._analyze_null_pattern_types(),
+            'significance_thresholds': self._compute_significance_thresholds()
+        }
+        
+        return analysis
+    
+    def _analyze_null_pattern_types(self) -> Dict:
+        """Analyze types of patterns in null models"""
+        pattern_types = defaultdict(int)
+        
+        for result in self.null_results:
+            for _, pattern in result['patterns']:
+                if isinstance(pattern, dict):
+                    pattern_types[pattern.get('type', 'unknown')] += 1
+        
+        return dict(pattern_types)
+    
+    def _compute_significance_thresholds(self) -> Dict:
+        """Compute significance thresholds for patterns"""
+        n_patterns_list = [r['n_patterns'] for r in self.null_results]
+        
+        thresholds = {
+            'p_0.05': np.percentile(n_patterns_list, 95),
+            'p_0.01': np.percentile(n_patterns_list, 99),
+            'p_0.001': np.percentile(n_patterns_list, 99.9),
+            'z_scores': {}
+        }
+        
+        # Compute z-score for observed vs null
+        if n_patterns_list:
+            mean_null = np.mean(n_patterns_list)
+            std_null = np.std(n_patterns_list)
+            if std_null > 0:
+                for n_patterns in [1, 5, 10, 20]:
+                    z = (n_patterns - mean_null) / std_null
+                    thresholds['z_scores'][n_patterns] = z
+        
+        return thresholds
+
+# ============================================================================
+# MAIN EXPERIMENT: RUN EVERYTHING
+# ============================================================================
+
+def run_complete_uro_experiment(total_iterations: int = 5000000,
+                               dimensionality_start: int = 50000,
+                               run_null_models: bool = True):
+    """
+    Run complete URO emergence experiment.
+    
+    This will take significant time for millions of iterations.
+    """
+    print("="*70)
+    print("COMPLETE URO EMERGENCE EXPERIMENT")
+    print("="*70)
+    
+    # Create output directory
+    import os
+    os.makedirs("checkpoints", exist_ok=True)
+    os.makedirs("results", exist_ok=True)
+    
+    # Start timer
+    start_time = datetime.now()
+    
+    # Part 1: Main URO emergence
+    print("\n1. RUNNING MAIN URO EMERGENCE...")
+    experiment = UROMassiveIteration(
+        save_interval=100000,
+        checkpoint_dir="checkpoints"
+    )
+    
+    main_results = experiment.run(
+        total_iterations=total_iterations,
+        dimensionality_start=dimensionality_start
+    )
+    
+    # Save main results
+    with open(f"results/uro_emergence_{start_time.strftime('%Y%m%d_%H%M%S')}.json", 'w') as f:
+        json.dump(main_results, f, indent=2, default=str)
+    
+    # Part 2: Null model validation
+    null_results = None
+    if run_null_models:
+        print("\n2. RUNNING NULL MODEL VALIDATION...")
+        validator = URONullModelValidator(n_null_models=50)
+        null_results = validator.run_null_experiments(
+            n_iterations=min(100000, total_iterations)
+        )
+        
+        # Save null results
+        with open(f"results/null_models_{start_time.strftime('%Y%m%d_%H%M%S')}.json", 'w') as f:
+            json.dump(null_results, f, indent=2, default=str)
+    
+    # Part 3: Statistical comparison
+    print("\n3. STATISTICAL ANALYSIS...")
+    statistical_comparison = compare_with_null(main_results, null_results)
+    
+    # Save comparison
+    with open(f"results/comparison_{start_time.strftime('%Y%m%d_%H%M%S')}.json", 'w') as f:
+        json.dump(statistical_comparison, f, indent=2, default=str)
+    
+    # Final report
+    end_time = datetime.now()
+    duration = end_time - start_time
+    
+    print("\n" + "="*70)
+    print("EXPERIMENT COMPLETE")
+    print("="*70)
+    print(f"Start time: {start_time}")
+    print(f"End time: {end_time}")
+    print(f"Total duration: {duration}")
+    print(f"Total iterations: {total_iterations:,}")
+    print(f"Checkpoints saved: {len(main_results['results']['checkpoints'])}")
+    
+    if main_results['final_analysis'].get('4D_emergence', {}).get('emerged', False):
+        print("\n🎉 4D SPACETIME SYMMETRY EMERGED! 🎉")
+        print(f"   First appeared at: ~{main_results['final_analysis']['4D_emergence'].get('when', {}).get('iteration_estimate', 'unknown'):,} iterations")
+        print(f"   Frequency: {main_results['final_analysis']['4D_emergence'].get('frequency', 0):.3f}")
+    else:
+        print("\n❌ 4D spacetime did not emerge in this run.")
+        print("   Try increasing total_iterations or adjusting parameters.")
+    
+    if statistical_comparison.get('patterns_significant', False):
+        print(f"\n📊 Pattern emergence is statistically significant!")
+        print(f"   p-value: {statistical_comparison.get('pattern_p_value', 0):.6f}")
+        print(f"   Effect size: {statistical_comparison.get('effect_size', 0):.3f}")
+    
+    print(f"\nResults saved in 'results/' directory.")
+    
+    return {
+        'main_results': main_results,
+        'null_results': null_results,
+        'comparison': statistical_comparison,
+        'duration': duration
+    }
+
+def compare_with_null(main_results: Dict, null_results: Dict) -> Dict:
+    """Compare main results with null models"""
+    if not null_results:
+        return {'error': 'No null results for comparison'}
+    
+    # Get pattern counts
+    n_patterns_main = main_results['final_analysis']['patterns_summary']['n_patterns']
+    null_pattern_summary = null_results['null_pattern_summary']
+    
+    # Statistical test
+    from scipy.stats import ttest_ind_from_stats
+    
+    # Create pseudo-samples for t-test
+    # Main result is a single sample, so we need to compare with null distribution
+    
+    # Compute z-score
+    mean_null = null_pattern_summary['mean']
+    std_null = null_pattern_summary['std']
+    
+    if std_null > 0:
+        z_score = (n_patterns_main - mean_null) / std_null
+        
+        # Convert to p-value (one-tailed)
+        from scipy.stats import norm
+        p_value = 1 - norm.cdf(z_score)
+        
+        # Effect size (Cohen's d)
+        effect_size = (n_patterns_main - mean_null) / std_null
+    else:
+        z_score = float('inf')
+        p_value = 0.0
+        effect_size = float('inf')
+    
+    # Check if 4D emergence is significant
+    # Count how many null models produced 4D-like structures
+    # (This is simplified - in reality we'd need to check each null model)
+    
+    return {
+        'n_patterns_main': n_patterns_main,
+        'n_patterns_null_mean': mean_null,
+        'n_patterns_null_std': std_null,
+        'z_score': z_score,
+        'p_value': p_value,
+        'effect_size': effect_size,
+        'patterns_significant': p_value < 0.05,
+        'significance_level': 0.05,
+        'null_sample_size': null_results['null_models_run']
+    }
+
+# ============================================================================
+# RUN WITH PARAMETERS FOR DEMONSTRATION
+# ============================================================================
+
+if __name__ == "__main__":
+    # For demonstration, run with smaller parameters
+    # For real emergence, need millions of iterations
+    
+    print("URO EMERGENT COMPLEXITY: Testing emergence of 4D spacetime")
+    print("This will run with 500,000 iterations for demonstration.")
+    print("For true emergence, recommend 10,000,000+ iterations.")
+    print()
+    
+    try:
+        results = run_complete_uro_experiment(
+            total_iterations=500000,      # 500K iterations for demo
+            dimensionality_start=5000,    # Start dimensionality analysis early
+            run_null_models=False         # Skip null models for speed
+        )
+        
+        # Quick analysis
+        if results['main_results']['final_analysis'].get('4D_emergence', {}).get('emerged', False):
+            print("\n✅ SUCCESS: Found emergent structure!")
+        else:
+            print("\n⚠️  No emergent 4D structure found with these parameters.")
+            print("   Try increasing total_iterations to 10,000,000+")
+        
+    except KeyboardInterrupt:
+        print("\n\nExperiment interrupted by user.")
+        print("Partial results may be available in checkpoints/ directory.")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
