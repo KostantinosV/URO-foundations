@@ -27,24 +27,5 @@ Peano arithmetic has **ontological collapse**: it treats creation (0→1) and it
 7. Computational native
 8. Cross-domain isomorphism
 
-## Files
-- `uro.py` - Complete implementation
-- `test.py` - Quick test
-
-## Quick Start
-
-`python uro.py`
-
-## Protection Status
-- GitHub timestamp: December 3, 2025
-- Creator: KostantinosV
-- Contact: coveroner1@gmail.com
-- Priority established
-
-## Citation
-
 KostantinosV. (2025). URO Foundations.
 GitHub: https://github.com/KostantinosV/URO-foundations
-
-## License
-MIT License
